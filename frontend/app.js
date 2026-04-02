@@ -182,16 +182,67 @@ ui.encode.vizBtn.addEventListener('click', async () => {
       
       ui.encode.vizOutput.innerHTML = `
         <div class="visual-result-card">
-          <p style="margin-bottom:10px; font-size:0.85rem; color:#94a3b8;">LSB Modification Heatmap (Red intensity map):</p>
-          <img src="${url}" style="max-width:100%; border-radius:12px;">
+          <p style="margin-bottom:15px; font-size:0.9rem; color:#94a3b8;">
+            <i class="icon-pulse"></i> LSB Heatmap (Click & Hold to Inspect Pixels closely):
+          </p>
+          <div class="img-magnifier-container">
+            <img id="vizImg" src="${url}">
+            <div id="vizLens" class="img-magnifier-glass"></div>
+          </div>
         </div>
       `;
+      
+      setTimeout(() => initMagnifier('vizImg', 'vizLens'), 100);
       ui.encode.vizOutput.scrollIntoView({ behavior: 'smooth' });
     }
   } catch (e) {
     showToast('Visualization failed');
   }
 });
+
+function initMagnifier(imgID, lensID) {
+  const img = document.getElementById(imgID);
+  const lens = document.getElementById(lensID);
+  const zoom = 10;
+
+  function moveMagnifier(e) {
+    const pos = getCursorPos(e);
+    let x = pos.x;
+    let y = pos.y;
+
+    if (x > img.width) x = img.width;
+    if (x < 0) x = 0;
+    if (y > img.height) y = img.height;
+    if (y < 0) y = 0;
+
+    lens.style.left = x + "px";
+    lens.style.top = y + "px";
+    lens.style.backgroundPosition = "-" + (x * zoom - lens.offsetWidth / 2) + "px -" + (y * zoom - lens.offsetHeight / 2) + "px";
+  }
+
+  function getCursorPos(e) {
+    let a, x = 0, y = 0;
+    e = e || window.event;
+    a = img.getBoundingClientRect();
+    x = e.pageX - a.left;
+    y = e.pageY - a.top;
+    x = x - window.pageXOffset;
+    y = y - window.pageYOffset;
+    return { x: x, y: y };
+  }
+
+  lens.style.backgroundImage = "url('" + img.src + "')";
+  lens.style.backgroundSize = (img.width * zoom) + "px " + (img.height * zoom) + "px";
+
+  img.onmousemove = moveMagnifier;
+  img.onmousedown = () => lens.style.display = 'block';
+  img.onmouseup = () => lens.style.display = 'none';
+  img.onmouseleave = () => lens.style.display = 'none';
+  
+  img.ontouchmove = moveMagnifier;
+  img.ontouchstart = () => lens.style.display = 'block';
+  img.ontouchend = () => lens.style.display = 'none';
+}
 
 ui.decode.btn.addEventListener('click', async () => {
   if (decodeState.isProcessing) return;

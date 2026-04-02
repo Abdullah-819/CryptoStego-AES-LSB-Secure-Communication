@@ -99,10 +99,11 @@ def visualize_lsb_changes(original_image, encoded_image):
         diff_count = int(diff_r) + int(diff_g) + int(diff_b)
 
         if diff_count > 0:
-            intensity = 100 + (diff_count * 50)
-            new_pixels.append((min(255, intensity), 0, 40))
+            intensity = 150 + (diff_count * 35)
+            new_pixels.append((min(255, intensity), 0, 100))
         else:
-            new_pixels.append((10, 10, 25))
+            new_pixels.append((4, 4, 12))
+
 
     result = original_image.copy()
     result.putdata(new_pixels)
