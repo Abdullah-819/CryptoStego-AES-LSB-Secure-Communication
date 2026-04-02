@@ -1,9 +1,8 @@
 from flask import Flask, request, send_file, jsonify, send_from_directory
 from PIL import Image
 import io
-import os
 
-from security_module import encrypt_message, decrypt_message, embed_data_into_image, extract_data_from_image
+from security_module import encrypt_message, decrypt_message, embed_data_into_image, extract_data_from_image, visualize_lsb_changes
 
 app = Flask(__name__, static_folder='../frontend', static_url_path='')
 
@@ -70,6 +69,30 @@ def decode():
 
     except Exception:
         return jsonify({'error': 'Decoding failed'}), 500
+
+
+@app.route('/visualize', methods=['POST'])
+def visualize():
+    try:
+        if 'original' not in request.files or 'encoded' not in request.files:
+            return jsonify({'error': 'Both images required'}), 400
+
+        original_file = request.files['original']
+        encoded_file = request.files['encoded']
+
+        original = Image.open(original_file).convert('RGB')
+        encoded = Image.open(encoded_file).convert('RGB')
+
+        visual = visualize_lsb_changes(original, encoded)
+
+        img_io = io.BytesIO()
+        visual.save(img_io, format='PNG')
+        img_io.seek(0)
+
+        return send_file(img_io, mimetype='image/png')
+
+    except Exception:
+        return jsonify({'error': 'Visualization failed'}), 500
 
 
 if __name__ == '__main__':
