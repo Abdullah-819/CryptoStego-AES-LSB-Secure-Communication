@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,130 +10,133 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
 
-<div class="loader-container" id="loader">
-    <div class="glow-spinner"></div>
-</div>
+    <div class="loader-container" id="loader">
+        <div class="glow-spinner"></div>
+    </div>
 
-<main class="app-container">
-    <header class="app-header">
-        <h1 class="glow-title">CryptoStego</h1>
-        <p class="subtitle">Secure Adaptive LSB Steganography with Entropy Tracking</p>
-    </header>
+    <main class="app-container">
+        <header class="app-header">
+            <h1 class="glow-title">CryptoStego</h1>
+            <p class="subtitle">Secure Adaptive LSB Steganography with Entropy Tracking</p>
+        </header>
 
-    <nav class="tab-switcher">
-        <button id="encodeTab" class="tab-btn active"><span>Encode</span></button>
-        <button id="decodeTab" class="tab-btn"><span>Decode</span></button>
-    </nav>
+        <nav class="tab-switcher">
+            <button id="encodeTab" class="tab-btn active"><span>Encode</span></button>
+            <button id="decodeTab" class="tab-btn"><span>Decode</span></button>
+        </nav>
 
-    <section id="encodeSection" class="module-section active-section">
-        <div class="glass-card">
-            <h2 class="section-title">Encrypt & Hide</h2>
-            
-            <div id="sentinelHeader" class="sentinel-box hidden">
-                <div class="sentinel-score">
-                    <span class="label">Stego-Security Score</span>
-                    <span id="stegoScore" class="value">---</span>
-                </div>
-                <div class="sentinel-metrics">
-                    <div class="metric">
-                        <span class="label">Capacity</span>
-                        <span id="capacityValue" class="value">0 KB</span>
+        <section id="encodeSection" class="module-section active-section">
+            <div class="glass-card">
+                <h2 class="section-title">Encrypt & Hide</h2>
+
+                <div id="sentinelHeader" class="sentinel-box hidden">
+                    <div class="sentinel-score">
+                        <span class="label">Stego-Security Score</span>
+                        <span id="stegoScore" class="value">---</span>
                     </div>
-                    <div class="metric">
-                        <span class="label">Entropy</span>
-                        <span id="entropyValue" class="value">0.00</span>
+                    <div class="sentinel-metrics">
+                        <div class="metric">
+                            <span class="label">Capacity</span>
+                            <span id="capacityValue" class="value">0 KB</span>
+                        </div>
+                        <div class="metric">
+                            <span class="label">Entropy</span>
+                            <span id="entropyValue" class="value">0.00</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="drop-zone" id="dropAreaEncode">
-                <div class="drop-hint">
-                    <span class="icon">🖼️</span>
-                    <p>Click or drag to upload cover image</p>
+                <div class="drop-zone" id="dropAreaEncode">
+                    <div class="drop-hint">
+                        <span class="icon">🖼️</span>
+                        <p>Click or drag to upload cover image</p>
+                    </div>
+                    <input type="file" id="encodeImage" accept="image/*" hidden>
+                    <img id="encodePreview" class="preview-img">
                 </div>
-                <input type="file" id="encodeImage" accept="image/*" hidden>
-                <img id="encodePreview" class="preview-img">
-            </div>
 
-            <div class="input-group">
-                <div class="label-row">
-                    <label for="message">Secret Message</label>
-                    <span id="charCount" class="char-count">0 / 0 Bytes</span>
+                <div class="input-group">
+                    <div class="label-row">
+                        <label for="message">Secret Message</label>
+                        <span id="charCount" class="char-count">0 / 0 Bytes</span>
+                    </div>
+                    <textarea id="message" placeholder="Type your hidden message here..."></textarea>
                 </div>
-                <textarea id="message" placeholder="Type your hidden message here..."></textarea>
-            </div>
 
-            <div class="input-group">
-                <label for="password">Security Password</label>
-                <input type="password" id="password" placeholder="AES-256 Key">
-            </div>
+                <div class="input-group">
+                    <label for="password">Security Password</label>
+                    <input type="password" id="password" placeholder="AES-256 Key">
+                </div>
 
-            <div class="action-buttons">
-                <button id="encodeBtn" class="primary-btn">
-                    <span class="btn-text">Embed & Export</span>
-                    <div class="btn-glow"></div>
-                </button>
-                <button id="visualizeBtn" class="secondary-btn" disabled>
-                    <span class="btn-text">Visualize Differences (With Lens)</span>
-                </button>
-            </div>
+                <div class="action-buttons">
+                    <button id="encodeBtn" class="primary-btn">
+                        <span class="btn-text">Embed & Export</span>
+                        <div class="btn-glow"></div>
+                    </button>
+                    <button id="visualizeBtn" class="secondary-btn" disabled>
+                        <span class="btn-text">Visualize Differences (With Lens)</span>
+                    </button>
+                </div>
 
-            <div class="progress-container">
-                <div class="progress-track">
-                    <div class="progress-fill" id="encodeProgress"></div>
+                <div class="progress-container">
+                    <div class="progress-track">
+                        <div class="progress-fill" id="encodeProgress"></div>
+                    </div>
+                </div>
+
+                <div id="visualOutput" class="visual-gallery"></div>
+            </div>
+        </section>
+
+        <section id="decodeSection" class="module-section">
+            <div class="glass-card">
+                <h2 class="section-title">Extract & Decrypt</h2>
+
+                <div class="drop-zone" id="dropAreaDecode">
+                    <div class="drop-hint">
+                        <span class="icon">🔐</span>
+                        <p>Upload the stego-image for extraction</p>
+                    </div>
+                    <input type="file" id="decodeImage" accept="image/*" hidden>
+                    <img id="decodePreview" class="preview-img">
+                </div>
+
+                <div class="input-group">
+                    <label for="decodePassword">Decryption Key</label>
+                    <input type="password" id="decodePassword" placeholder="Enter original password">
+                </div>
+
+                <div class="action-buttons">
+                    <button id="decodeBtn" class="primary-btn">
+                        <span class="btn-text">Recover Message</span>
+                        <div class="btn-glow"></div>
+                    </button>
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-track">
+                        <div class="progress-fill" id="decodeProgress"></div>
+                    </div>
+                </div>
+
+                <div class="output-container" id="decodedMessageContainer">
+                    <label>Extracted Message:</label>
+                    <div id="decodedMessage" class="message-display">...</div>
                 </div>
             </div>
+        </section>
+    </main>
 
-            <div id="visualOutput" class="visual-gallery"></div>
-        </div>
-    </section>
+    <footer>
+        <p>&copy; 2026 CryptoStego. Advanced Cybersecurity Engineering.</p>
+        <p>Created By Abdullah Rana & Ahmad Ali</p>
+    </footer>
 
-    <section id="decodeSection" class="module-section">
-        <div class="glass-card">
-            <h2 class="section-title">Extract & Decrypt</h2>
-
-            <div class="drop-zone" id="dropAreaDecode">
-                <div class="drop-hint">
-                    <span class="icon">🔐</span>
-                    <p>Upload the stego-image for extraction</p>
-                </div>
-                <input type="file" id="decodeImage" accept="image/*" hidden>
-                <img id="decodePreview" class="preview-img">
-            </div>
-
-            <div class="input-group">
-                <label for="decodePassword">Decryption Key</label>
-                <input type="password" id="decodePassword" placeholder="Enter original password">
-            </div>
-
-            <div class="action-buttons">
-                <button id="decodeBtn" class="primary-btn">
-                    <span class="btn-text">Recover Message</span>
-                    <div class="btn-glow"></div>
-                </button>
-            </div>
-
-            <div class="progress-container">
-                <div class="progress-track">
-                    <div class="progress-fill" id="decodeProgress"></div>
-                </div>
-            </div>
-
-            <div class="output-container" id="decodedMessageContainer">
-                <label>Extracted Message:</label>
-                <div id="decodedMessage" class="message-display">...</div>
-            </div>
-        </div>
-    </section>
-</main>
-
-<footer>
-    <p>&copy; 2026 CryptoStego. Advanced Cybersecurity Engineering.</p>
-</footer>
-
-<script src="app.js"></script>
+    <script src="app.js"></script>
 
 </body>
+
 </html>
