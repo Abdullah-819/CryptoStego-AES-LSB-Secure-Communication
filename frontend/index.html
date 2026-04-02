@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoStego</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="loader" id="loader">
+    <div class="spinner"></div>
+</div>
+
+<div class="container">
+
+    <h1>CryptoStego</h1>
+
+    <div class="tabs">
+        <button id="encodeTab" class="active">Encode</button>
+        <button id="decodeTab">Decode</button>
+    </div>
+
+    <div class="card" id="encodeSection">
+
+        <div class="drop-area" id="dropAreaEncode">
+            <p>Drag & Drop Image or Click</p>
+            <input type="file" id="encodeImage" hidden>
+            <img id="encodePreview">
+        </div>
+
+        <textarea id="message" placeholder="Enter secret message"></textarea>
+        <input type="password" id="password" placeholder="Enter password">
+
+        <button id="encodeBtn">Encode & Download</button>
+
+        <div class="progress">
+            <div class="progress-bar" id="encodeProgress"></div>
+        </div>
+
+    </div>
+
+    <div class="card hidden" id="decodeSection">
+
+        <div class="drop-area" id="dropAreaDecode">
+            <p>Upload Encoded Image</p>
+            <input type="file" id="decodeImage" hidden>
+            <img id="decodePreview">
+        </div>
+
+        <input type="password" id="decodePassword" placeholder="Enter password">
+
+        <button id="decodeBtn">Decode Message</button>
+
+        <div class="progress">
+            <div class="progress-bar" id="decodeProgress"></div>
+        </div>
+
+        <div class="output" id="decodedMessage"></div>
+
+    </div>
+
+</div>
+
+<script src="app.js"></script>
+
+</body>
+</html>
