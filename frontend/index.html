@@ -3,67 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CryptoStego</title>
+    <title>CryptoStego | Advanced Secure Communication</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<div class="loader" id="loader">
-    <div class="spinner"></div>
+<div class="loader-container" id="loader">
+    <div class="glow-spinner"></div>
 </div>
 
-<div class="container">
+<main class="app-container">
+    <header class="app-header">
+        <h1 class="glow-title">CryptoStego</h1>
+        <p class="subtitle">Secure LSB Steganography with AES-256 Encryption</p>
+    </header>
 
-    <h1>CryptoStego</h1>
+    <nav class="tab-switcher">
+        <button id="encodeTab" class="tab-btn active"><span>Encode</span></button>
+        <button id="decodeTab" class="tab-btn"><span>Decode</span></button>
+    </nav>
 
-    <div class="tabs">
-        <button id="encodeTab" class="active">Encode</button>
-        <button id="decodeTab">Decode</button>
-    </div>
+    <section id="encodeSection" class="module-section active-section">
+        <div class="glass-card">
+            <h2 class="section-title">Encrypt & Hide</h2>
+            
+            <div class="drop-zone" id="dropAreaEncode">
+                <div class="drop-hint">
+                    <span class="icon">🖼️</span>
+                    <p>Click or drag to upload cover image</p>
+                </div>
+                <input type="file" id="encodeImage" accept="image/*" hidden>
+                <img id="encodePreview" class="preview-img">
+            </div>
 
-    <div class="card" id="encodeSection">
+            <div class="input-group">
+                <label for="message">Secret Message</label>
+                <textarea id="message" placeholder="Type your hidden message here..."></textarea>
+            </div>
 
-        <div class="drop-area" id="dropAreaEncode">
-            <p>Drag & Drop Original Image</p>
-            <input type="file" id="encodeImage" hidden>
-            <img id="encodePreview">
+            <div class="input-group">
+                <label for="password">Security Password</label>
+                <input type="password" id="password" placeholder="AES-256 Key">
+            </div>
+
+            <div class="action-buttons">
+                <button id="encodeBtn" class="primary-btn">
+                    <span class="btn-text">Embed & Export</span>
+                    <div class="btn-glow"></div>
+                </button>
+                <button id="visualizeBtn" class="secondary-btn" disabled>
+                    <span class="btn-text">Visualize LSB Differences</span>
+                </button>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-track">
+                    <div class="progress-fill" id="encodeProgress"></div>
+                </div>
+            </div>
+
+            <div id="visualOutput" class="visual-gallery"></div>
         </div>
+    </section>
 
-        <textarea id="message" placeholder="Enter secret message"></textarea>
-        <input type="password" id="password" placeholder="Enter password">
+    <section id="decodeSection" class="module-section">
+        <div class="glass-card">
+            <h2 class="section-title">Extract & Decrypt</h2>
 
-        <button id="encodeBtn">Encode & Download</button>
-        <button id="visualizeBtn">Show LSB Differences</button>
+            <div class="drop-zone" id="dropAreaDecode">
+                <div class="drop-hint">
+                    <span class="icon">🔐</span>
+                    <p>Upload the stego-image for extraction</p>
+                </div>
+                <input type="file" id="decodeImage" accept="image/*" hidden>
+                <img id="decodePreview" class="preview-img">
+            </div>
 
-        <div class="progress">
-            <div class="progress-bar" id="encodeProgress"></div>
+            <div class="input-group">
+                <label for="decodePassword">Decryption Key</label>
+                <input type="password" id="decodePassword" placeholder="Enter original password">
+            </div>
+
+            <div class="action-buttons">
+                <button id="decodeBtn" class="primary-btn">
+                    <span class="btn-text">Recover Message</span>
+                    <div class="btn-glow"></div>
+                </button>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-track">
+                    <div class="progress-fill" id="decodeProgress"></div>
+                </div>
+            </div>
+
+            <div class="output-container" id="decodedMessageContainer">
+                <label>Extracted Message:</label>
+                <div id="decodedMessage" class="message-display">...</div>
+            </div>
         </div>
+    </section>
+</main>
 
-        <div class="visual-output" id="visualOutput"></div>
-
-    </div>
-
-    <div class="card hidden" id="decodeSection">
-
-        <div class="drop-area" id="dropAreaDecode">
-            <p>Upload Encoded Image</p>
-            <input type="file" id="decodeImage" hidden>
-            <img id="decodePreview">
-        </div>
-
-        <input type="password" id="decodePassword" placeholder="Enter password">
-
-        <button id="decodeBtn">Decode Message</button>
-
-        <div class="progress">
-            <div class="progress-bar" id="decodeProgress"></div>
-        </div>
-
-        <div class="output" id="decodedMessage"></div>
-
-    </div>
-
-</div>
+<footer>
+    <p>&copy; 2026 CryptoStego. Professional Grade Intelligence Tools.</p>
+</footer>
 
 <script src="app.js"></script>
 

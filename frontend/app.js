@@ -1,187 +1,248 @@
-const encodeTab = document.getElementById('encodeTab')
-const decodeTab = document.getElementById('decodeTab')
+const encodeState = {
+  originalImage: null,
+  encodedBlob: null,
+  isProcessing: false
+};
 
-const encodeSection = document.getElementById('encodeSection')
-const decodeSection = document.getElementById('decodeSection')
+const decodeState = {
+  stegoImage: null,
+  isProcessing: false
+};
 
-const dropAreaEncode = document.getElementById('dropAreaEncode')
-const dropAreaDecode = document.getElementById('dropAreaDecode')
+const ui = {
+  loader: document.getElementById('loader'),
+  tabs: {
+    encode: document.getElementById('encodeTab'),
+    decode: document.getElementById('decodeTab')
+  },
+  sections: {
+    encode: document.getElementById('encodeSection'),
+    decode: document.getElementById('decodeSection')
+  },
+  encode: {
+    drop: document.getElementById('dropAreaEncode'),
+    input: document.getElementById('encodeImage'),
+    preview: document.getElementById('encodePreview'),
+    message: document.getElementById('message'),
+    password: document.getElementById('password'),
+    btn: document.getElementById('encodeBtn'),
+    vizBtn: document.getElementById('visualizeBtn'),
+    progress: document.getElementById('encodeProgress'),
+    vizOutput: document.getElementById('visualOutput')
+  },
+  decode: {
+    drop: document.getElementById('dropAreaDecode'),
+    input: document.getElementById('decodeImage'),
+    preview: document.getElementById('decodePreview'),
+    password: document.getElementById('decodePassword'),
+    btn: document.getElementById('decodeBtn'),
+    progress: document.getElementById('decodeProgress'),
+    output: document.getElementById('decodedMessage')
+  }
+};
 
-const encodeInput = document.getElementById('encodeImage')
-const decodeInput = document.getElementById('decodeImage')
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    ui.loader.style.opacity = '0';
+    setTimeout(() => ui.loader.style.display = 'none', 500);
+  }, 1200);
+});
 
-const encodePreview = document.getElementById('encodePreview')
-const decodePreview = document.getElementById('decodePreview')
+ui.tabs.encode.addEventListener('click', () => {
+  ui.tabs.encode.classList.add('active');
+  ui.tabs.decode.classList.remove('active');
+  ui.sections.encode.classList.add('active-section');
+  ui.sections.decode.classList.remove('active-section');
+});
 
-const encodeBtn = document.getElementById('encodeBtn')
-const decodeBtn = document.getElementById('decodeBtn')
-const visualizeBtn = document.getElementById('visualizeBtn')
+ui.tabs.decode.addEventListener('click', () => {
+  ui.tabs.decode.classList.add('active');
+  ui.tabs.encode.classList.remove('active');
+  ui.sections.decode.classList.add('active-section');
+  ui.sections.encode.classList.remove('active-section');
+});
 
-const encodeProgress = document.getElementById('encodeProgress')
-const decodeProgress = document.getElementById('decodeProgress')
+function handleImageSelect(input, preview, callback) {
+  const file = input.files[0];
+  if (!file) return;
 
-const loader = document.getElementById('loader')
-
-const messageInput = document.getElementById('message')
-const passwordInput = document.getElementById('password')
-const decodePasswordInput = document.getElementById('decodePassword')
-
-const output = document.getElementById('decodedMessage')
-const visualOutput = document.getElementById('visualOutput')
-
-let originalImageFile = null
-let encodedImageBlob = null
-
-window.onload = () => {
-    setTimeout(() => {
-        loader.style.display = 'none'
-    }, 1000)
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    preview.src = e.target.result;
+    preview.style.display = 'block';
+    preview.previousElementSibling.style.display = 'none';
+    if (callback) callback(file);
+  };
+  reader.readAsDataURL(file);
 }
 
-encodeTab.onclick = () => {
-    encodeTab.classList.add('active')
-    decodeTab.classList.remove('active')
-    encodeSection.classList.remove('hidden')
-    decodeSection.classList.add('hidden')
+function setupDropZone(dropZone, input, preview, callback) {
+  dropZone.addEventListener('click', () => input.click());
+  
+  input.addEventListener('change', () => {
+    handleImageSelect(input, preview, callback);
+  });
+
+  dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('drag-active');
+  });
+
+  dropZone.addEventListener('dragleave', () => {
+    dropZone.classList.remove('drag-active');
+  });
+
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-active');
+    if (e.dataTransfer.files.length) {
+      input.files = e.dataTransfer.files;
+      handleImageSelect(input, preview, callback);
+    }
+  });
 }
 
-decodeTab.onclick = () => {
-    decodeTab.classList.add('active')
-    encodeTab.classList.remove('active')
-    decodeSection.classList.remove('hidden')
-    encodeSection.classList.add('hidden')
-}
+setupDropZone(ui.encode.drop, ui.encode.input, ui.encode.preview, (file) => {
+  encodeState.originalImage = file;
+  ui.encode.vizBtn.disabled = true;
+});
 
-function setupDrop(area, input, preview) {
-    area.onclick = () => input.click()
+setupDropZone(ui.decode.drop, ui.decode.input, ui.decode.preview, (file) => {
+  decodeState.stegoImage = file;
+});
 
-    input.onchange = () => {
-        const file = input.files[0]
-        originalImageFile = file
+ui.encode.btn.addEventListener('click', async () => {
+  if (encodeState.isProcessing) return;
 
-        const reader = new FileReader()
-        reader.onload = e => {
-            preview.src = e.target.result
-            preview.style.display = 'block'
-        }
-        reader.readAsDataURL(file)
-    }
+  const message = ui.encode.message.value.trim();
+  const password = ui.encode.password.value;
 
-    area.ondragover = e => {
-        e.preventDefault()
-        area.style.borderColor = '#6366f1'
-    }
+  if (!encodeState.originalImage || !message || !password) {
+    showToast('Missing required fields');
+    return;
+  }
 
-    area.ondragleave = () => {
-        area.style.borderColor = ''
-    }
+  encodeState.isProcessing = true;
+  ui.encode.progress.style.width = '20%';
+  
+  const formData = new FormData();
+  formData.append('image', encodeState.originalImage);
+  formData.append('message', message);
+  formData.append('password', password);
 
-    area.ondrop = e => {
-        e.preventDefault()
-        input.files = e.dataTransfer.files
-        input.onchange()
-    }
-}
-
-setupDrop(dropAreaEncode, encodeInput, encodePreview)
-setupDrop(dropAreaDecode, decodeInput, decodePreview)
-
-encodeBtn.onclick = async () => {
-    const file = encodeInput.files[0]
-    const message = messageInput.value
-    const password = passwordInput.value
-
-    if (!file || !message || !password) {
-        alert('All fields required')
-        return
-    }
-
-    const formData = new FormData()
-    formData.append('image', file)
-    formData.append('message', message)
-    formData.append('password', password)
-
-    encodeProgress.style.width = '30%'
-
+  try {
+    ui.encode.progress.style.width = '50%';
     const response = await fetch('/encode', {
-        method: 'POST',
-        body: formData
-    })
-
-    encodeProgress.style.width = '70%'
+      method: 'POST',
+      body: formData
+    });
 
     if (response.ok) {
-        const blob = await response.blob()
-        encodedImageBlob = blob
-
-        const url = URL.createObjectURL(blob)
-
-        const a = document.createElement('a')
-        a.href = url
-        a.download = 'encoded.png'
-        a.click()
-
-        encodeProgress.style.width = '100%'
+      const blob = await response.blob();
+      encodeState.encodedBlob = blob;
+      
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'stego_encrypted.png';
+      a.click();
+      
+      ui.encode.progress.style.width = '100%';
+      ui.encode.vizBtn.disabled = false;
+      showToast('Encryption & Embedding complete!');
     } else {
-        alert('Encoding failed')
-        encodeProgress.style.width = '0%'
+      const err = await response.json();
+      showToast(err.error || 'Server error during encoding');
+      ui.encode.progress.style.width = '0';
     }
-}
+  } catch (e) {
+    showToast('Network error');
+    ui.encode.progress.style.width = '0';
+  } finally {
+    encodeState.isProcessing = false;
+  }
+});
 
-visualizeBtn.onclick = async () => {
-    if (!originalImageFile || !encodedImageBlob) {
-        alert('Encode image first')
-        return
-    }
+ui.encode.vizBtn.addEventListener('click', async () => {
+  if (!encodeState.originalImage || !encodeState.encodedBlob) return;
 
-    const formData = new FormData()
-    formData.append('original', originalImageFile)
-    formData.append('encoded', encodedImageBlob, 'encoded.png')
+  const formData = new FormData();
+  formData.append('original', encodeState.originalImage);
+  formData.append('encoded', encodeState.encodedBlob, 'encoded.png');
 
+  try {
     const response = await fetch('/visualize', {
-        method: 'POST',
-        body: formData
-    })
+      method: 'POST',
+      body: formData
+    });
 
     if (response.ok) {
-        const blob = await response.blob()
-        const url = URL.createObjectURL(blob)
-
-        visualOutput.innerHTML = `<img src="${url}" style="max-width:100%; margin-top:15px;">`
-    } else {
-        alert('Visualization failed')
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      
+      ui.encode.vizOutput.innerHTML = `
+        <div class="visual-result-card">
+          <p style="margin-bottom:10px; font-size:0.85rem; color:#94a3b8;">LSB Modification Heatmap (Red intensity map):</p>
+          <img src="${url}" style="max-width:100%; border-radius:12px;">
+        </div>
+      `;
+      ui.encode.vizOutput.scrollIntoView({ behavior: 'smooth' });
     }
-}
+  } catch (e) {
+    showToast('Visualization failed');
+  }
+});
 
-decodeBtn.onclick = async () => {
-    const file = decodeInput.files[0]
-    const password = decodePasswordInput.value
+ui.decode.btn.addEventListener('click', async () => {
+  if (decodeState.isProcessing) return;
 
-    if (!file || !password) {
-        alert('All fields required')
-        return
-    }
+  const password = ui.decode.password.value;
 
-    const formData = new FormData()
-    formData.append('image', file)
-    formData.append('password', password)
+  if (!decodeState.stegoImage || !password) {
+    showToast('Image and password required');
+    return;
+  }
 
-    decodeProgress.style.width = '30%'
+  decodeState.isProcessing = true;
+  ui.decode.progress.style.width = '30%';
 
+  const formData = new FormData();
+  formData.append('image', decodeState.stegoImage);
+  formData.append('password', password);
+
+  try {
     const response = await fetch('/decode', {
-        method: 'POST',
-        body: formData
-    })
+      method: 'POST',
+      body: formData
+    });
 
-    decodeProgress.style.width = '70%'
-
-    const data = await response.json()
+    ui.decode.progress.style.width = '70%';
+    const data = await response.json();
 
     if (response.ok) {
-        output.innerText = data.message
-        decodeProgress.style.width = '100%'
+      ui.decode.output.textContent = data.message;
+      ui.decode.progress.style.width = '100%';
+      showToast('Decryption successful!');
     } else {
-        output.innerText = data.error
-        decodeProgress.style.width = '0%'
+      ui.decode.output.textContent = 'Decryption Failed: ' + (data.error || 'Invalid credentials');
+      ui.decode.progress.style.width = '0';
     }
+  } catch (e) {
+    showToast('Communication error');
+    ui.decode.progress.style.width = '0';
+  } finally {
+    decodeState.isProcessing = false;
+  }
+});
+
+function showToast(msg) {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.innerText = msg;
+  toast.style = 'position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(8px); color: white; padding: 12px 24px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5); z-index: 10000; font-size: 0.9rem; pointer-events: none; animation: slideUp 0.3s ease-out;';
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
 }

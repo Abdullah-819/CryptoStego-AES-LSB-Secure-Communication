@@ -92,11 +92,18 @@ def visualize_lsb_changes(original_image, encoded_image):
         r1, g1, b1 = orig[:3]
         r2, g2, b2 = enc[:3]
 
-        if (r1 & 1) != (r2 & 1) or (g1 & 1) != (g2 & 1) or (b1 & 1) != (b2 & 1):
-            new_pixels.append((255, 0, 0))
+        diff_r = (r1 & 1) != (r2 & 1)
+        diff_g = (g1 & 1) != (g2 & 1)
+        diff_b = (b1 & 1) != (b2 & 1)
+        
+        diff_count = int(diff_r) + int(diff_g) + int(diff_b)
+
+        if diff_count > 0:
+            intensity = 100 + (diff_count * 50)
+            new_pixels.append((min(255, intensity), 0, 40))
         else:
-            new_pixels.append((0, 0, 0))
+            new_pixels.append((10, 10, 25))
 
     result = original_image.copy()
     result.putdata(new_pixels)
-    return result
+    return result
