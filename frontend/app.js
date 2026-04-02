@@ -15,6 +15,7 @@ const decodePreview = document.getElementById('decodePreview')
 
 const encodeBtn = document.getElementById('encodeBtn')
 const decodeBtn = document.getElementById('decodeBtn')
+const visualizeBtn = document.getElementById('visualizeBtn')
 
 const encodeProgress = document.getElementById('encodeProgress')
 const decodeProgress = document.getElementById('decodeProgress')
@@ -26,6 +27,10 @@ const passwordInput = document.getElementById('password')
 const decodePasswordInput = document.getElementById('decodePassword')
 
 const output = document.getElementById('decodedMessage')
+const visualOutput = document.getElementById('visualOutput')
+
+let originalImageFile = null
+let encodedImageBlob = null
 
 window.onload = () => {
     setTimeout(() => {
@@ -52,6 +57,8 @@ function setupDrop(area, input, preview) {
 
     input.onchange = () => {
         const file = input.files[0]
+        originalImageFile = file
+
         const reader = new FileReader()
         reader.onload = e => {
             preview.src = e.target.result
@@ -105,6 +112,8 @@ encodeBtn.onclick = async () => {
 
     if (response.ok) {
         const blob = await response.blob()
+        encodedImageBlob = blob
+
         const url = URL.createObjectURL(blob)
 
         const a = document.createElement('a')
@@ -116,6 +125,31 @@ encodeBtn.onclick = async () => {
     } else {
         alert('Encoding failed')
         encodeProgress.style.width = '0%'
+    }
+}
+
+visualizeBtn.onclick = async () => {
+    if (!originalImageFile || !encodedImageBlob) {
+        alert('Encode image first')
+        return
+    }
+
+    const formData = new FormData()
+    formData.append('original', originalImageFile)
+    formData.append('encoded', encodedImageBlob, 'encoded.png')
+
+    const response = await fetch('/visualize', {
+        method: 'POST',
+        body: formData
+    })
+
+    if (response.ok) {
+        const blob = await response.blob()
+        const url = URL.createObjectURL(blob)
+
+        visualOutput.innerHTML = `<img src="${url}" style="max-width:100%; margin-top:15px;">`
+    } else {
+        alert('Visualization failed')
     }
 }
 

@@ -24,7 +24,7 @@
     <div class="card" id="encodeSection">
 
         <div class="drop-area" id="dropAreaEncode">
-            <p>Drag & Drop Image or Click</p>
+            <p>Drag & Drop Original Image</p>
             <input type="file" id="encodeImage" hidden>
             <img id="encodePreview">
         </div>
@@ -33,10 +33,13 @@
         <input type="password" id="password" placeholder="Enter password">
 
         <button id="encodeBtn">Encode & Download</button>
+        <button id="visualizeBtn">Show LSB Differences</button>
 
         <div class="progress">
             <div class="progress-bar" id="encodeProgress"></div>
         </div>
+
+        <div class="visual-output" id="visualOutput"></div>
 
     </div>
 
