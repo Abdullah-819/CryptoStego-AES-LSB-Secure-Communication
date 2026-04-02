@@ -1,7 +1,9 @@
 const encodeState = {
   originalImage: null,
   encodedBlob: null,
-  isProcessing: false
+  isProcessing: false,
+  capacityBits: 0,
+  originalEntropy: 0
 };
 
 const decodeState = {
@@ -18,6 +20,13 @@ const ui = {
   sections: {
     encode: document.getElementById('encodeSection'),
     decode: document.getElementById('decodeSection')
+  },
+  sentinel: {
+    box: document.getElementById('sentinelHeader'),
+    score: document.getElementById('stegoScore'),
+    capacity: document.getElementById('capacityValue'),
+    entropy: document.getElementById('entropyValue'),
+    charCount: document.getElementById('charCount')
   },
   encode: {
     drop: document.getElementById('dropAreaEncode'),
@@ -48,19 +57,16 @@ window.addEventListener('load', () => {
   }, 1200);
 });
 
-ui.tabs.encode.addEventListener('click', () => {
-  ui.tabs.encode.classList.add('active');
-  ui.tabs.decode.classList.remove('active');
-  ui.sections.encode.classList.add('active-section');
-  ui.sections.decode.classList.remove('active-section');
-});
+ui.tabs.encode.addEventListener('click', () => switchTab('encode'));
+ui.tabs.decode.addEventListener('click', () => switchTab('decode'));
 
-ui.tabs.decode.addEventListener('click', () => {
-  ui.tabs.decode.classList.add('active');
-  ui.tabs.encode.classList.remove('active');
-  ui.sections.decode.classList.add('active-section');
-  ui.sections.encode.classList.remove('active-section');
-});
+function switchTab(tab) {
+  const isEncode = tab === 'encode';
+  ui.tabs.encode.classList.toggle('active', isEncode);
+  ui.tabs.decode.classList.toggle('active', !isEncode);
+  ui.sections.encode.classList.toggle('active-section', isEncode);
+  ui.sections.decode.classList.toggle('active-section', !isEncode);
+}
 
 function handleImageSelect(input, preview, callback) {
   const file = input.files[0];
@@ -70,7 +76,7 @@ function handleImageSelect(input, preview, callback) {
   reader.onload = (e) => {
     preview.src = e.target.result;
     preview.style.display = 'block';
-    preview.previousElementSibling.style.display = 'none';
+    preview.previousElementSibling.classList.add('hidden');
     if (callback) callback(file);
   };
   reader.readAsDataURL(file);
@@ -78,20 +84,14 @@ function handleImageSelect(input, preview, callback) {
 
 function setupDropZone(dropZone, input, preview, callback) {
   dropZone.addEventListener('click', () => input.click());
-  
-  input.addEventListener('change', () => {
-    handleImageSelect(input, preview, callback);
-  });
+  input.addEventListener('change', () => handleImageSelect(input, preview, callback));
 
   dropZone.addEventListener('dragover', (e) => {
     e.preventDefault();
     dropZone.classList.add('drag-active');
   });
 
-  dropZone.addEventListener('dragleave', () => {
-    dropZone.classList.remove('drag-active');
-  });
-
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-active'));
   dropZone.addEventListener('drop', (e) => {
     e.preventDefault();
     dropZone.classList.remove('drag-active');
@@ -102,9 +102,59 @@ function setupDropZone(dropZone, input, preview, callback) {
   });
 }
 
+async function analyzeImage(file) {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  try {
+    const response = await fetch('/analyze', {
+      method: 'POST',
+      body: formData
+    });
+    const data = await response.json();
+    if (response.ok) {
+      encodeState.capacityBits = data.capacity * 8;
+      encodeState.originalEntropy = data.entropy;
+      
+      ui.sentinel.box.classList.remove('hidden');
+      ui.sentinel.capacity.textContent = (data.capacity / 1024).toFixed(1) + ' KB';
+      ui.sentinel.entropy.textContent = data.entropy.toFixed(2);
+      updateSentinel();
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function updateSentinel() {
+  const currentLen = ui.encode.message.value.length * 8;
+  const maxLen = encodeState.capacityBits;
+
+  ui.sentinel.charCount.textContent = `${ui.encode.message.value.length} / ${Math.floor(maxLen / 8)} Bytes`;
+
+  if (maxLen === 0) return;
+
+  const ratio = currentLen / maxLen;
+  let score = 100 - (ratio * 50);
+  
+  if (ratio > 1) {
+    score = 0;
+    ui.sentinel.score.style.color = '#f43f5e';
+  } else if (ratio > 0.7) {
+    ui.sentinel.score.style.color = '#f59e0b';
+  } else {
+    ui.sentinel.score.style.color = '#10b981';
+  }
+
+  ui.sentinel.score.textContent = Math.round(score) + '%';
+}
+
+ui.encode.message.addEventListener('input', updateSentinel);
+
 setupDropZone(ui.encode.drop, ui.encode.input, ui.encode.preview, (file) => {
   encodeState.originalImage = file;
   ui.encode.vizBtn.disabled = true;
+  analyzeImage(file);
 });
 
 setupDropZone(ui.decode.drop, ui.decode.input, ui.decode.preview, (file) => {
@@ -144,20 +194,19 @@ ui.encode.btn.addEventListener('click', async () => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'stego_encrypted.png';
+      a.download = 'stego_adaptive.png';
       a.click();
       
       ui.encode.progress.style.width = '100%';
       ui.encode.vizBtn.disabled = false;
-      showToast('Encryption & Embedding complete!');
+      showToast('Adaptive Encryption Complete!');
     } else {
       const err = await response.json();
-      showToast(err.error || 'Server error during encoding');
+      showToast(err.error);
       ui.encode.progress.style.width = '0';
     }
   } catch (e) {
     showToast('Network error');
-    ui.encode.progress.style.width = '0';
   } finally {
     encodeState.isProcessing = false;
   }
@@ -183,7 +232,7 @@ ui.encode.vizBtn.addEventListener('click', async () => {
       ui.encode.vizOutput.innerHTML = `
         <div class="visual-result-card">
           <p style="margin-bottom:15px; font-size:0.9rem; color:#94a3b8;">
-            <i class="icon-pulse"></i> LSB Heatmap (Click & Hold to Inspect Pixels closely):
+            LSB Heatmap (Adaptive Mapping): Click & Hold to Inspect
           </p>
           <div class="img-magnifier-container">
             <img id="vizImg" src="${url}">
@@ -238,17 +287,12 @@ function initMagnifier(imgID, lensID) {
   img.onmousedown = () => lens.style.display = 'block';
   img.onmouseup = () => lens.style.display = 'none';
   img.onmouseleave = () => lens.style.display = 'none';
-  
-  img.ontouchmove = moveMagnifier;
-  img.ontouchstart = () => lens.style.display = 'block';
-  img.ontouchend = () => lens.style.display = 'none';
 }
 
 ui.decode.btn.addEventListener('click', async () => {
   if (decodeState.isProcessing) return;
 
   const password = ui.decode.password.value;
-
   if (!decodeState.stegoImage || !password) {
     showToast('Image and password required');
     return;
@@ -275,12 +319,11 @@ ui.decode.btn.addEventListener('click', async () => {
       ui.decode.progress.style.width = '100%';
       showToast('Decryption successful!');
     } else {
-      ui.decode.output.textContent = 'Decryption Failed: ' + (data.error || 'Invalid credentials');
+      ui.decode.output.textContent = 'Failed: ' + data.error;
       ui.decode.progress.style.width = '0';
     }
   } catch (e) {
     showToast('Communication error');
-    ui.decode.progress.style.width = '0';
   } finally {
     decodeState.isProcessing = false;
   }
@@ -293,7 +336,7 @@ function showToast(msg) {
   const toast = document.createElement('div');
   toast.className = 'toast';
   toast.innerText = msg;
-  toast.style = 'position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(8px); color: white; padding: 12px 24px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5); z-index: 10000; font-size: 0.9rem; pointer-events: none; animation: slideUp 0.3s ease-out;';
+  toast.style = 'position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(8px); color: white; padding: 12px 24px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); z-index: 10000; font-size: 0.9rem; pointer-events: none; animation: slideUp 0.3s ease-out;';
   document.body.appendChild(toast);
   setTimeout(() => toast.remove(), 3000);
 }

@@ -18,7 +18,7 @@
 <main class="app-container">
     <header class="app-header">
         <h1 class="glow-title">CryptoStego</h1>
-        <p class="subtitle">Secure LSB Steganography with AES-256 Encryption</p>
+        <p class="subtitle">Secure Adaptive LSB Steganography with Entropy Tracking</p>
     </header>
 
     <nav class="tab-switcher">
@@ -30,6 +30,23 @@
         <div class="glass-card">
             <h2 class="section-title">Encrypt & Hide</h2>
             
+            <div id="sentinelHeader" class="sentinel-box hidden">
+                <div class="sentinel-score">
+                    <span class="label">Stego-Security Score</span>
+                    <span id="stegoScore" class="value">---</span>
+                </div>
+                <div class="sentinel-metrics">
+                    <div class="metric">
+                        <span class="label">Capacity</span>
+                        <span id="capacityValue" class="value">0 KB</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">Entropy</span>
+                        <span id="entropyValue" class="value">0.00</span>
+                    </div>
+                </div>
+            </div>
+
             <div class="drop-zone" id="dropAreaEncode">
                 <div class="drop-hint">
                     <span class="icon">🖼️</span>
@@ -40,7 +57,10 @@
             </div>
 
             <div class="input-group">
-                <label for="message">Secret Message</label>
+                <div class="label-row">
+                    <label for="message">Secret Message</label>
+                    <span id="charCount" class="char-count">0 / 0 Bytes</span>
+                </div>
                 <textarea id="message" placeholder="Type your hidden message here..."></textarea>
             </div>
 
@@ -54,11 +74,9 @@
                     <span class="btn-text">Embed & Export</span>
                     <div class="btn-glow"></div>
                 </button>
-                <div class="split-buttons">
-                    <button id="visualizeBtn" class="secondary-btn" disabled>
-                        <span class="btn-text">Visualize Differences</span>
-                    </button>
-                </div>
+                <button id="visualizeBtn" class="secondary-btn" disabled>
+                    <span class="btn-text">Visualize Differences (With Lens)</span>
+                </button>
             </div>
 
             <div class="progress-container">
@@ -111,7 +129,7 @@
 </main>
 
 <footer>
-    <p>&copy; 2026 CryptoStego. Professional Grade Intelligence Tools.</p>
+    <p>&copy; 2026 CryptoStego. Advanced Cybersecurity Engineering.</p>
 </footer>
 
 <script src="app.js"></script>
