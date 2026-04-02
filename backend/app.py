@@ -1,10 +1,20 @@
-from flask import Flask, request, send_file, jsonify
+from flask import Flask, request, send_file, jsonify, send_from_directory
 from PIL import Image
 import io
+import os
 
 from security_module import encrypt_message, decrypt_message, embed_data_into_image, extract_data_from_image
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='../frontend', static_url_path='')
+
+@app.route('/')
+def home():
+    return send_from_directory(app.static_folder, 'index.html')
+
+@app.route('/<path:path>')
+def static_files(path):
+    return send_from_directory(app.static_folder, path)
+
 
 @app.route('/encode', methods=['POST'])
 def encode():
