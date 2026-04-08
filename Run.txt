@@ -1,0 +1,50 @@
+# 🚀 How to Run CryptoStego
+
+Follow these steps to start the application after you have installed the requirements using `pip install -r requirements.txt`.
+
+## 1. Activate the Virtual Environment (Highly Recommended)
+Since there is a `venv` folder in your project, you should activate it to ensure all dependencies are correctly loaded.
+
+**On Windows (PowerShell/CMD):**
+```powershell
+# In the project root (Information Security) folder
+.\venv\Scripts\activate
+```
+
+---
+
+## 2. Navigate to the Backend Directory
+The main server file (`app.py`) is located inside the `backend` folder.
+```powershell
+cd backend
+```
+
+---
+
+## 3. Start the Flask Server
+Run the application using Python.
+```powershell
+python app.py
+```
+> [!NOTE]
+> You should see output similar to: `* Running on http://127.0.0.1:5000`
+
+---
+
+## 4. Access the Application
+Open your web browser and go to:
+**[http://127.0.0.1:5000](http://127.0.0.1:5000)**
+
+---
+
+## 🛠️ Troubleshooting
+- **Port already in use:** If you see an error about port 5000 being busy, you can change the port in `backend/app.py` on line 111 or simply restart your computer.
+- **ModuleNotFoundError:** Ensure you activated the `venv` or installed requirements globally using `pip install -r requirements.txt`.
+- **Image Errors:** Make sure the images you upload are in standard formats like `.png`, `.jpg`, or `.jpeg`.
+
+---
+
+### 📂 Project Structure Overview
+- `backend/`: Contains the Flask server and logic (`app.py`, `security_module.py`).
+- `frontend/`: Contains the Glassmorphism UI (HTML/JS/CSS served by Flask).
+- `requirements.txt`: List of necessary Python packages.
