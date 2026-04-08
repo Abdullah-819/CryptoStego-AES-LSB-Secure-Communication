@@ -80,7 +80,7 @@ window.addEventListener('load', () => {
   setTimeout(() => {
     ui.loader.style.opacity = '0';
     setTimeout(() => ui.loader.style.display = 'none', 500);
-  }, 1000);
+  }, 3000);
   
   // Set circle radius/circumference
   const radius = ui.progress.circle.r.baseVal.value;

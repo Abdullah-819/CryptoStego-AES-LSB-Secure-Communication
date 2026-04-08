@@ -8,14 +8,27 @@
     <title>CryptoStego Pro | Advanced Secure Communication</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
 
     <div class="loader-container" id="loader">
-        <div class="glow-spinner"></div>
+        <div class="loader-content">
+            <h2 class="loader-name-top">Abdullah Rana</h2>
+            <p class="loader-role-top">Senior MERN & Data Eng.</p>
+            
+            <div class="loader-visual">
+                <div class="glow-spinner"></div>
+                <div class="spinner-core">🔐</div>
+            </div>
+
+            <h2 class="loader-name-bottom">Ahmad Ali</h2>
+            <p class="loader-role-bottom">MEAN Stack Dev & Designer</p>
+        </div>
     </div>
 
     <div class="dashboard-wrapper">
@@ -85,7 +98,15 @@
             </div>
 
             <footer class="sidebar-footer">
-                <p>&copy; 2026 CryptoStego. <br>Secure Engineering Lab.</p>
+                <div class="dev-info">
+                    <p class="dev-name">Ahmad Ali--FA24-BCS-363</p>
+                    <p class="dev-role">MEAN Stack Dev</p>
+                </div>
+                <div class="dev-info">
+                    <p class="dev-name">Abdullah Rana--FA24-BCS-389</p>
+                    <p class="dev-role">Senior MERN Stack Dev</p>
+                </div>
+                <p class="copyright">&copy; 2026 CryptoStego Pro</p>
             </footer>
         </aside>
 
@@ -112,8 +133,11 @@
                     <div class="progress-display">
                         <div class="circular-progress-box">
                             <svg class="progress-ring" width="120" height="120">
-                                <circle class="progress-ring__circle-bg" stroke="rgba(255,255,255,0.05)" stroke-width="8" fill="transparent" r="50" cx="60" cy="60"/>
-                                <circle id="progressCircle" class="progress-ring__circle" stroke="url(#progressGradient)" stroke-width="8" stroke-linecap="round" fill="transparent" r="50" cx="60" cy="60"/>
+                                <circle class="progress-ring__circle-bg" stroke="rgba(255,255,255,0.05)"
+                                    stroke-width="8" fill="transparent" r="50" cx="60" cy="60" />
+                                <circle id="progressCircle" class="progress-ring__circle"
+                                    stroke="url(#progressGradient)" stroke-width="8" stroke-linecap="round"
+                                    fill="transparent" r="50" cx="60" cy="60" />
                                 <defs>
                                     <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                                         <stop offset="0%" stop-color="#38bdf8" />
@@ -142,7 +166,7 @@
                         <button class="c-tab active" id="resultsTabBtn">System Output</button>
                         <button class="c-tab" id="vizTabBtn" disabled>Difference Map</button>
                     </div>
-                    
+
                     <div id="resultsContent" class="card-content active">
                         <div class="empty-state" id="emptyResults">
                             <span class="large-icon">📂</span>
